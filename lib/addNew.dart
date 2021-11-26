@@ -17,7 +17,7 @@ class _AddNewCityState extends State<AddNewCity> {
   List<City> searchResults = [];
   getResults(String input) async {
     var response =
-        await http.get(Uri.http('192.168.1.12:4000', 'search/$input'));
+        await http.get(Uri.https('weather.alenygam.com', 'search/$input'));
     if (response.statusCode >= 300) {
       return;
     }
