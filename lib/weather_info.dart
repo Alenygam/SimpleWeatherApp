@@ -118,10 +118,35 @@ class DailyWeatherWidget extends StatelessWidget {
     return Column(
       children: [
         Image.asset('assets/${forecast.icon}.png'),
-        Text(forecast.date),
-        const Divider(),
-        Text('Max: ${forecast.hightemp}°C'),
-        Text('Low: ${forecast.lowtemp}°C'),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              const Icon(Icons.calendar_today_outlined, size: 19),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Text(
+                  forecast.date,
+                  style: const TextStyle(
+                    fontSize: 17.5,
+                  )
+                ),
+              ),
+            ],
+          ),
+        ),
+        Row(
+          children: [
+            const Icon(Icons.device_thermostat, color: Colors.red),
+            Text('${forecast.hightemp}°C'),
+          ],
+        ),
+        Row(
+          children: [
+            const Icon(Icons.device_thermostat, color: Colors.blueGrey),
+            Text('${forecast.lowtemp}°C'),
+          ],
+        ),
       ],
     );
   }
@@ -141,8 +166,24 @@ class HourlyWeatherWidget extends StatelessWidget {
         children: [
           Column(
             children: [
-              Text('${forecast.temp}°C'),
-              Text(forecast.time),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.device_thermostat, color: Colors.red),
+                    Text('${forecast.temp}°C'),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.access_alarm),
+                    Text(forecast.time),
+                  ],
+                ),
+              ),
             ],
           )
         ],
@@ -163,9 +204,43 @@ class CurrentWeatherWidget extends StatelessWidget {
         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
       Image.asset('assets/${current.icon}.png'),
-      Text('Temperatura: ${current.temp}°C'),
-      Text('Pressione Atmosferica: ${current.pressure}mBar'),
-      Text('Umidità Relativa: ${current.humidity}%')
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                const Icon(Icons.device_thermostat, size: 40.0, color: Colors.red),
+                Text(
+                  '${current.temp}°C',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.5
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                const Icon(Icons.water, size: 40.0, color: Colors.lightBlue),
+                Text(
+                  ' ${current.humidity}%',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.5
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      const Divider(),
+      Text('Barometro: ${current.pressure}mBar'),
     ]);
   }
 }
