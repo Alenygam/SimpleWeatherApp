@@ -81,6 +81,7 @@ class _WeatherInfoState extends State<WeatherInfo> {
     }
     return Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: Text(cityName),
         ),
         body: SingleChildScrollView(
@@ -165,6 +166,7 @@ class HourlyWeatherWidget extends StatelessWidget {
       Column(
         children: [
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.all(4.0),
