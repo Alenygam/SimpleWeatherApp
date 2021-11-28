@@ -17,15 +17,15 @@ class _AddNewCityState extends State<AddNewCity> {
   List<City> searchResults = [];
   getResults(String input) async {
     var response =
-        await http.get(Uri.https('weather.alenygam.com', 'search/$input'));
+        await http.get(Uri.https('weather.alenygam.com', 'search/geo/$input'));
     if (response.statusCode >= 300) {
       return;
     }
     var jsonData = jsonDecode(response.body);
     List<City> resultsNew = [];
     for (var u in jsonData) {
-      var cityJson = u["item"];
-      City city = City(cityJson["name"], cityJson["country"], cityJson["id"]);
+      var cityJson = u;
+      City city = City(cityJson["name"], cityJson["countryName"], cityJson["geonameId"]);
       resultsNew.add(city);
     }
     setState(() {
