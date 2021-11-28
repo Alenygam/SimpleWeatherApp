@@ -21,8 +21,8 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
   List<DailyWeather> daily = [];
 
   void getWeatherData() async {
-    var response =
-        await http.get(Uri.https('weather.alenygam.com', 'weather/geo/$lat/$lon'));
+    var response = await http
+        .get(Uri.https('weather.alenygam.com', 'weather/geo/$lat/$lon'));
     if (response.statusCode >= 300) return;
     setState(() {
       setWeathers(jsonDecode(response.body));
@@ -73,37 +73,35 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
   @override
   Widget build(BuildContext context) {
     if (current == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Posizione Corrente'),
+      return const Center(
+        child: Text(
+          'Caricamento...',
+          style: TextStyle(
+            fontFamily: 'IndieFlower',
+            fontSize: 40.0
+          )
         ),
       );
     }
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('Posizione Corrente'),
-      ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            CurrentWeatherWidget(current),
-            Column(children: [
-              for (var forecast in hourly) HourlyWeatherWidget(forecast),
-            ]),
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          CurrentWeatherWidget(current),
+          Column(children: [
+            for (var forecast in hourly) HourlyWeatherWidget(forecast),
           ]),
-          const Divider(),
-          SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var forecast in daily) DailyWeatherWidget(forecast)
-                ],
-              )),
         ]),
-      ),
+        const Divider(),
+        SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var forecast in daily) DailyWeatherWidget(forecast)
+              ],
+            )),
+      ]),
     );
   }
 }

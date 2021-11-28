@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
 import 'addNew.dart';
 import 'weather_info.dart';
 import 'weather_info_lat_long.dart';
@@ -10,25 +10,34 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(primarySwatch: Colors.amber),
+      home: const HomePage(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
-  List<String> cities = [];
-  Map<String, WidgetBuilder> routes = {};
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
-  void setRoutes() {
-    routes = {
-      "/addNewCity": (BuildContext context) => AddNewCity(addNewCity),
-    };
-    for (String city in cities) {
-      routes["/${city.split(';')[1]}"] =
-          (BuildContext context) => WeatherInfo(city);
-    }
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<String> cities = [];
+  List<double> latLong = [];
+
+  @override
+  void initState() {
+    _getStoredCities();
+    geoLocationWeather();
+    super.initState();
   }
 
   void addNewCity(String cityName) async {
@@ -41,7 +50,6 @@ class _MyAppState extends State<MyApp> {
     await prefs.setStringList('cities', newCities);
     setState(() {
       cities = newCities;
-      setRoutes();
     });
   }
 
@@ -53,14 +61,7 @@ class _MyAppState extends State<MyApp> {
     await prefs.setStringList('cities', newCities);
     setState(() {
       cities = newCities;
-      setRoutes();
     });
-  }
-
-  @override
-  void initState() {
-    _getStoredCities();
-    super.initState();
   }
 
   void _getStoredCities() async {
@@ -70,124 +71,118 @@ class _MyAppState extends State<MyApp> {
       if (savedCities != null) {
         cities = savedCities;
       }
-      setRoutes();
+    });
+  }
+
+  void geoLocationWeather() async {
+    bool _serviceEnabled;
+    LocationPermission permission;
+
+    _serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!_serviceEnabled) {
+      return Future.error('Devi abilitare i servizi di geolocalizzazione');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return;
+    }
+
+    Position _locationData = await Geolocator.getCurrentPosition();
+
+    final double latitude = _locationData.latitude;
+    final double longitude = _locationData.longitude;
+
+    setState(() {
+      latLong = [latitude, longitude];
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(primarySwatch: Colors.amber),
-      home: HomePage(cities, removeCity),
-      routes: routes,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Meteo"),
+        centerTitle: true,
+        elevation: 5.0,
+      ),
+      drawer: Drawer(
+          child: ListView(children: <Widget>[
+        for (String city in cities)
+          ListTile(
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => WeatherInfo(city)));
+            },
+            onLongPress: () {
+              removeCity(city);
+            },
+            title: Text(city.split(';')[0]),
+          ),
+        const Divider(),
+        ListTile(
+          title: const Text("Aggiungi città"),
+          trailing: const Icon(Icons.add),
+          onTap: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => AddNewCity(addNewCity)));
+          },
+        ),
+        ListTile(
+          title: const Text("Chiudi"),
+          trailing: const Icon(Icons.close),
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ])),
+      body: latLong.isEmpty
+          ? DefaultHome(geoLocationWeather)
+          : WeatherInfoGeo(latLong[0], latLong[1]),
+      floatingActionButton:
+        latLong.isNotEmpty
+        ? FloatingActionButton(
+          child: const Icon(Icons.refresh),
+          onPressed: geoLocationWeather,
+        )
+        : null
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  final List<String> cities;
-  final Function removeCity;
-  const HomePage(this.cities, this.removeCity, {Key? key}) : super(key: key);
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  void geoLocationWeather() async {
-    Location location = Location();
-
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
-    LocationData _locationData;
-    _locationData = await location.getLocation();
-
-    final double latitude = _locationData.latitude!;
-    final double longitude = _locationData.longitude!;
-
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => WeatherInfoGeo(latitude, longitude)));
-  }
-
-  @override
-  void initState() {
-    geoLocationWeather();
-    super.initState();
-  }
+class DefaultHome extends StatelessWidget {
+  final Function geoLocationWeather;
+  const DefaultHome(this.geoLocationWeather, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text("Meteo"),
-          centerTitle: true,
-          elevation: 5.0,
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "Benvenuti nell'applicazione del meteo più semplice che ci sia",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'IndieFlower',
+            fontSize: 40.0,
+          ),
         ),
-        drawer: Drawer(
-            child: ListView(children: <Widget>[
-          for (String city in widget.cities)
-            ListTile(
-              onTap: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pushNamed('/${city.split(";")[1]}');
-              },
-              onLongPress: () {
-                widget.removeCity(city);
-              },
-              title: Text(city.split(';')[0]),
-            ),
-          const Divider(),
-          ListTile(
-            title: const Text("Aggiungi città"),
-            trailing: const Icon(Icons.add),
-            onTap: () {
-              Navigator.of(context).pop();
-              // Have to come up with a better solution.
-              Navigator.of(context).pushNamed("/addNewCity");
-            },
-          ),
-          ListTile(
-            title: const Text("Chiudi"),
-            trailing: const Icon(Icons.close),
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ])),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Benvenuti nell'applicazione del meteo più semplice che ci sia",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'IndieFlower',
-                fontSize: 40.0,
-              ),
-            ),
-            ElevatedButton(
-              onPressed: geoLocationWeather,
-              child: const Text('Prendi posizione GPS'),
-            ),
-          ],
-        )
+        ElevatedButton(
+          onPressed: () {
+            geoLocationWeather();
+          },
+          child: const Text('Prendi posizione GPS'),
+        ),
+      ],
     );
   }
 }
