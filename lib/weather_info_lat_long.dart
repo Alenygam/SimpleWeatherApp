@@ -22,7 +22,7 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
 
   void getWeatherData() async {
     var response =
-        await http.get(Uri.http('192.168.1.12:4000', 'weather/geo/$lat/$lon'));
+        await http.get(Uri.https('weather.alenygam.com', 'weather/geo/$lat/$lon'));
     if (response.statusCode >= 300) return;
     setState(() {
       setWeathers(jsonDecode(response.body));
