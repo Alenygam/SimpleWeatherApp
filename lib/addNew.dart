@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'city.dart';
+
 class AddNewCity extends StatefulWidget {
   final Function addCity;
   const AddNewCity(this.addCity, {Key? key}) : super(key: key);
@@ -25,7 +27,8 @@ class _AddNewCityState extends State<AddNewCity> {
     List<City> resultsNew = [];
     for (var u in jsonData) {
       var cityJson = u;
-      City city = City(cityJson["name"], cityJson["countryName"], cityJson["geonameId"]);
+      City city = City(
+          cityJson["geonameId"], cityJson["countryName"], cityJson["name"]);
       resultsNew.add(city);
     }
     setState(() {
@@ -39,7 +42,7 @@ class _AddNewCityState extends State<AddNewCity> {
       appBar: AppBar(
         title: Text(title),
       ),
-      body: ListView(
+      body: Column(
         children: [
           TextField(
             onSubmitted: getResults,
@@ -54,22 +57,24 @@ class _AddNewCityState extends State<AddNewCity> {
             ),
           ),
           const Divider(),
-          for (City city in searchResults)
-            ElevatedButton(
-              onPressed: () {
-                widget.addCity('${city.name};${city.id};${city.country}');
-                Navigator.of(context).pop();
-              },
-              child: Text('${city.name} (${city.country})')
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  for (City city in searchResults)
+                    ElevatedButton(
+                      onPressed: () {
+                        widget.addCity(city);
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('${city.name} (${city.country})'),
+                    ),
+                ],
+              ),
             ),
+          ),
         ],
       ),
     );
   }
-}
-
-class City {
-  final String name, country;
-  final num id;
-  City(this.name, this.country, this.id);
 }
