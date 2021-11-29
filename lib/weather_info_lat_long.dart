@@ -24,14 +24,6 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
     });
   }
 
-  // This is when refreshing
-  bool isLoadingRefresh = false;
-  void setLoadingRefresh(bool isLoading) {
-    setState(() {
-      isLoadingRefresh = isLoading;
-    });
-  }
-
   // ignore: prefer_typing_uninitialized_variables
   var current;
   List<HourlyWeather> hourly = [];
@@ -46,42 +38,7 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
     });
   }
 
-  Future<void> geoLocationRefresh() async {
-    setLoadingRefresh(true);
-
-    bool _serviceEnabled;
-    LocationPermission permission;
-
-    _serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!_serviceEnabled) {
-      setLoadingRefresh(true);
-      return;
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        setLoadingRefresh(true);
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      setLoadingRefresh(true);
-      return;
-    }
-
-    Position _locationData = await Geolocator.getCurrentPosition();
-
-    double lat = _locationData.latitude;
-    double lon = _locationData.longitude;
-
-    await getWeatherData(lat, lon);
-    setLoadingRefresh(false);
-  }
-
-  Future<void> initialGeoLocationWeather() async {
+  Future<void> geoLocationWeather() async {
     bool _serviceEnabled;
     LocationPermission permission;
 
@@ -116,7 +73,7 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
 
   @override
   void initState() {
-    initialGeoLocationWeather();
+    geoLocationWeather();
     super.initState();
   }
 
@@ -159,29 +116,31 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
 
   @override
   Widget build(BuildContext context) {
+    late Widget bodyWidget;
+
     if (typeOfScreen == 0) {
-      return const _Loading();
+      bodyWidget = const _Loading();
     } else if (typeOfScreen == 1) {
-      return NoGPSScreen(initialGeoLocationWeather);
+      bodyWidget = NoGPSScreen(geoLocationWeather);
     } else {
-      return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text("Posizione Corrente"),
-        ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            await geoLocationRefresh();
-          },
-          child: !isLoadingRefresh
-              ? SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: _Weather(current, hourly, daily),
-                )
-              : const _Loading(),
-        ),
+      bodyWidget = SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: _Weather(current, hourly, daily),
       );
     }
+
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text("Posizione Corrente"),
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await geoLocationWeather();
+        },
+        child: bodyWidget,
+      ),
+    );
   }
 }
 
