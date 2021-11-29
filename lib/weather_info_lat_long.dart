@@ -126,12 +126,6 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
           title: const Text("Posizione Corrente")
         ),
         body: _Weather(current, hourly, daily),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            geoLocationWeather();
-          },
-          child: const Icon(Icons.refresh),
-        ),
       );
     }
   }

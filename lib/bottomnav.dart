@@ -58,8 +58,13 @@ class _BottomNavState extends State<BottomNav> with TickerProviderStateMixin {
       ),
       bottomNavigationBar: BottomAppBar(
         child: TabBar(
+          indicator: const UnderlineTabIndicator(
+            borderSide: BorderSide(width: 4, color: Colors.blue),
+          ),
+          labelColor: Colors.black,
+          unselectedLabelColor: Colors.grey,
           controller: tabController,
-          tabs: myTabs
+          tabs: myTabs,
         ),
       ),
     );
