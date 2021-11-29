@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'addNew.dart';
 import 'city.dart';
+import 'weather_info.dart';
 
 class SavedCities extends StatefulWidget {
   const SavedCities({Key? key}) : super(key: key);
@@ -24,10 +25,10 @@ class _SavedCitiesState extends State<SavedCities> {
       return;
     }
     List<String> stringCities = [];
-    stringCities.add('${city.name};${city.cityId};${city.country}');
     for (City cit in cities) {
       stringCities.add('${cit.name};${cit.cityId};${cit.country}');
     }
+    stringCities.add('${city.name};${city.cityId};${city.country}');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('cities', stringCities);
     setState(() {
@@ -114,6 +115,11 @@ class CityItem extends StatelessWidget {
     return ListTile(
       onLongPress: () {
         removeCity(city);
+      },
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (builder) => WeatherInfo(city),
+        ));
       },
       title: Text(city.name),
       subtitle: Text(city.country),
