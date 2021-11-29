@@ -16,10 +16,19 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
   // 0: Loading screen
   // 1: No-GPS screen
   // 2: Weather screen
+  // This is when first loading the app
   num typeOfScreen = 0;
   void setTypeOfScreen(num type) {
     setState(() {
       typeOfScreen = type;
+    });
+  }
+
+  // This is when refreshing
+  bool isLoadingRefresh = false;
+  void setLoadingRefresh(bool isLoading) {
+    setState(() {
+      isLoadingRefresh = isLoading;
     });
   }
 
@@ -37,7 +46,42 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
     });
   }
 
-  void geoLocationWeather() async {
+  Future<void> geoLocationRefresh() async {
+    setLoadingRefresh(true);
+
+    bool _serviceEnabled;
+    LocationPermission permission;
+
+    _serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!_serviceEnabled) {
+      setLoadingRefresh(true);
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setLoadingRefresh(true);
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      setLoadingRefresh(true);
+      return;
+    }
+
+    Position _locationData = await Geolocator.getCurrentPosition();
+
+    double lat = _locationData.latitude;
+    double lon = _locationData.longitude;
+
+    await getWeatherData(lat, lon);
+    setLoadingRefresh(false);
+  }
+
+  Future<void> initialGeoLocationWeather() async {
     bool _serviceEnabled;
     LocationPermission permission;
 
@@ -72,7 +116,7 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
 
   @override
   void initState() {
-    geoLocationWeather();
+    initialGeoLocationWeather();
     super.initState();
   }
 
@@ -118,14 +162,24 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
     if (typeOfScreen == 0) {
       return const _Loading();
     } else if (typeOfScreen == 1) {
-      return NoGPSScreen(geoLocationWeather);
+      return NoGPSScreen(initialGeoLocationWeather);
     } else {
       return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: const Text("Posizione Corrente")
+          title: const Text("Posizione Corrente"),
         ),
-        body: _Weather(current, hourly, daily),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            await geoLocationRefresh();
+          },
+          child: !isLoadingRefresh
+              ? SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: _Weather(current, hourly, daily),
+                )
+              : const _Loading(),
+        ),
       );
     }
   }
@@ -136,7 +190,9 @@ class _Loading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SpinKitWave(color: Colors.amber, size: 50.0);
+    return const Center(
+      child: SpinKitWave(color: Colors.blue, size: 50.0),
+    );
   }
 }
 
