@@ -1,20 +1,21 @@
 import 'dart:convert';
 
+import 'city.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class WeatherInfo extends StatefulWidget {
-  final String cityString;
-  const WeatherInfo(this.cityString, {Key? key}) : super(key: key);
+  final City city;
+  const WeatherInfo(this.city, {Key? key}) : super(key: key);
 
   @override
   State<WeatherInfo> createState() => _WeatherInfoState();
 }
 
 class _WeatherInfoState extends State<WeatherInfo> {
-  String get cityName => widget.cityString.split(';')[0];
-  String get cityId => widget.cityString.split(';')[1];
-  String get cityCountry => widget.cityString.split(';')[2];
+  String get cityName => widget.city.name;
+  num get cityId => widget.city.cityId;
+  String get cityCountry => widget.city.country;
   // ignore: prefer_typing_uninitialized_variables
   var current;
   List<HourlyWeather> hourly = [];
@@ -80,32 +81,30 @@ class _WeatherInfoState extends State<WeatherInfo> {
       );
     }
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(cityName),
-        ),
-        body: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child:
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(cityName),
+      ),
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(children: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+            CurrentWeatherWidget(current),
             Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                CurrentWeatherWidget(current),
-                Column(children: [
-                  for (var forecast in hourly) HourlyWeatherWidget(forecast),
-                ]),
-              ]),
-              const Divider(),
-              SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (var forecast in daily) DailyWeatherWidget(forecast)
-                    ],
-                  )
-              ),
+              for (var forecast in hourly) HourlyWeatherWidget(forecast),
             ]),
-        ),
+          ]),
+          const Divider(),
+          SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var forecast in daily) DailyWeatherWidget(forecast)
+                ],
+              )),
+        ]),
+      ),
     );
   }
 }
@@ -126,12 +125,10 @@ class DailyWeatherWidget extends StatelessWidget {
               const Icon(Icons.calendar_today_outlined, size: 19),
               Padding(
                 padding: const EdgeInsets.all(4.0),
-                child: Text(
-                  forecast.date,
-                  style: const TextStyle(
-                    fontSize: 17.5,
-                  )
-                ),
+                child: Text(forecast.date,
+                    style: const TextStyle(
+                      fontSize: 17.5,
+                    )),
               ),
             ],
           ),
@@ -213,13 +210,12 @@ class CurrentWeatherWidget extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                const Icon(Icons.device_thermostat, size: 40.0, color: Colors.red),
+                const Icon(Icons.device_thermostat,
+                    size: 40.0, color: Colors.red),
                 Text(
                   '${current.temp}°C',
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.5
-                  ),
+                      fontWeight: FontWeight.bold, fontSize: 18.5),
                 ),
               ],
             ),
@@ -232,9 +228,7 @@ class CurrentWeatherWidget extends StatelessWidget {
                 Text(
                   ' ${current.humidity}%',
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.5
-                  ),
+                      fontWeight: FontWeight.bold, fontSize: 18.5),
                 ),
               ],
             ),
