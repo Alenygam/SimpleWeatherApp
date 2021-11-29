@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:geolocator/geolocator.dart';
+import 'bottomnav.dart';
 import 'addNew.dart';
 import 'weather_info.dart';
 import 'weather_info_lat_long.dart';
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(primarySwatch: Colors.amber),
-      home: const HomePage(),
+      home: const BottomNav(),
     );
   }
 }
@@ -36,7 +36,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     _getStoredCities();
-    geoLocationWeather();
     super.initState();
   }
 
@@ -71,37 +70,6 @@ class _HomePageState extends State<HomePage> {
       if (savedCities != null) {
         cities = savedCities;
       }
-    });
-  }
-
-  void geoLocationWeather() async {
-    bool _serviceEnabled;
-    LocationPermission permission;
-
-    _serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!_serviceEnabled) {
-      return Future.error('Devi abilitare i servizi di geolocalizzazione');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return;
-    }
-
-    Position _locationData = await Geolocator.getCurrentPosition();
-
-    final double latitude = _locationData.latitude;
-    final double longitude = _locationData.longitude;
-
-    setState(() {
-      latLong = [latitude, longitude];
     });
   }
 
@@ -145,44 +113,7 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ])),
-      body: latLong.isEmpty
-          ? DefaultHome(geoLocationWeather)
-          : WeatherInfoGeo(latLong[0], latLong[1]),
-      floatingActionButton:
-        latLong.isNotEmpty
-        ? FloatingActionButton(
-          child: const Icon(Icons.refresh),
-          onPressed: geoLocationWeather,
-        )
-        : null
-    );
-  }
-}
-
-class DefaultHome extends StatelessWidget {
-  final Function geoLocationWeather;
-  const DefaultHome(this.geoLocationWeather, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          "Benvenuti nell'applicazione del meteo più semplice che ci sia",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontFamily: 'IndieFlower',
-            fontSize: 40.0,
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            geoLocationWeather();
-          },
-          child: const Text('Prendi posizione GPS'),
-        ),
-      ],
+      body: const WeatherInfoGeo(),
     );
   }
 }
