@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'addNew.dart';
-import 'city.dart';
-import 'weather_info.dart';
+
+import 'package:SimpleWeatherApp/auxPages/add_new.dart';
+import 'package:SimpleWeatherApp/auxPages/weather_info.dart';
+import 'package:SimpleWeatherApp/common/city.dart';
 
 class SavedCities extends StatefulWidget {
   const SavedCities({Key? key}) : super(key: key);

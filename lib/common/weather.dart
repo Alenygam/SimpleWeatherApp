@@ -1,118 +1,92 @@
-import 'dart:convert';
-
-import 'city.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-class WeatherInfo extends StatefulWidget {
-  final City city;
-  const WeatherInfo(this.city, {Key? key}) : super(key: key);
-
-  @override
-  State<WeatherInfo> createState() => _WeatherInfoState();
-}
-
-class _WeatherInfoState extends State<WeatherInfo> {
-  String get cityName => widget.city.name;
-  num get cityId => widget.city.cityId;
-  String get cityCountry => widget.city.country;
-  // ignore: prefer_typing_uninitialized_variables
-  var current;
-  List<HourlyWeather> hourly = [];
-  List<DailyWeather> daily = [];
-
-  void getWeatherData() async {
-    var response =
-        await http.get(Uri.https('weather.alenygam.com', 'weather/$cityId'));
-    if (response.statusCode >= 300) return;
-    if (!mounted) return;
-    setState(() {
-      setWeathers(jsonDecode(response.body));
-    });
-  }
-
-  void setWeathers(data) {
-    var currentJson = data["current"];
-    current = CurrentWeather(
-        currentJson["id"],
-        currentJson["main"],
-        currentJson["description"],
-        currentJson["icon"],
-        currentJson["temp"],
-        currentJson["pressure"],
-        currentJson["humidity"]);
-
-    var hourlyJson = data["hourly"];
-    for (var forecast in hourlyJson) {
-      hourly.add(HourlyWeather(
-          forecast["time"],
-          forecast["temp"],
-          forecast["id"],
-          forecast["main"],
-          forecast["description"],
-          forecast["icon"]));
-    }
-
-    var dailyJson = data["daily"];
-    for (var forecast in dailyJson) {
-      daily.add(DailyWeather(
-          forecast["date"],
-          forecast["hightemp"],
-          forecast["lowtemp"],
-          forecast["id"],
-          forecast["main"],
-          forecast["description"],
-          forecast["icon"]));
-    }
-  }
-
-  @override
-  void initState() {
-    getWeatherData();
-    super.initState();
-  }
+class WeatherPage extends StatelessWidget {
+  final Function refresh;
+  final num typeOfScreen;
+  final CurrentWeather? current;
+  final List<HourlyWeather>? hourly;
+  final List<DailyWeather>? daily;
+  const WeatherPage(this.refresh, this.typeOfScreen, this.current, this.hourly, this.daily, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (current == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(cityName),
-        ),
+    late Widget bodyWidget;
+
+    if (typeOfScreen == 0) {
+      bodyWidget = const _Loading();
+    } else if (typeOfScreen == 1) {
+      bodyWidget = _NoGPSScreen(refresh);
+    } else {
+      bodyWidget = SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        // Those arguments can never be null, unless you're really trying!
+        child: _Weather(current!, hourly!, daily!),
       );
     }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(cityName),
+        title: const Text("Posizione Corrente"),
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            CurrentWeatherWidget(current),
-            Column(children: [
-              for (var forecast in hourly) HourlyWeatherWidget(forecast),
-            ]),
-          ]),
-          const Divider(),
-          SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var forecast in daily) DailyWeatherWidget(forecast)
-                ],
-              )),
-        ]),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await refresh();
+        },
+        child: bodyWidget,
       ),
     );
   }
 }
 
-class DailyWeatherWidget extends StatelessWidget {
+class _Loading extends StatelessWidget {
+  const _Loading({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: SpinKitWave(color: Colors.blue, size: 50.0),
+    );
+  }
+}
+
+class _Weather extends StatelessWidget {
+  final CurrentWeather current;
+  final List<HourlyWeather> hourly;
+  final List<DailyWeather> daily;
+  const _Weather(this.current, this.hourly, this.daily, {Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(children: [
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          _CurrentWeatherWidget(current),
+          Column(children: [
+            for (var forecast in hourly) _HourlyWeatherWidget(forecast),
+          ]),
+        ]),
+        const Divider(),
+        SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var forecast in daily) _DailyWeatherWidget(forecast)
+              ],
+            )),
+      ]),
+    );
+  }
+}
+
+class _DailyWeatherWidget extends StatelessWidget {
   final DailyWeather forecast;
-  const DailyWeatherWidget(this.forecast, {Key? key}) : super(key: key);
+  const _DailyWeatherWidget(this.forecast, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -151,9 +125,9 @@ class DailyWeatherWidget extends StatelessWidget {
   }
 }
 
-class HourlyWeatherWidget extends StatelessWidget {
+class _HourlyWeatherWidget extends StatelessWidget {
   final HourlyWeather forecast;
-  const HourlyWeatherWidget(this.forecast, {Key? key}) : super(key: key);
+  const _HourlyWeatherWidget(this.forecast, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -192,9 +166,9 @@ class HourlyWeatherWidget extends StatelessWidget {
   }
 }
 
-class CurrentWeatherWidget extends StatelessWidget {
+class _CurrentWeatherWidget extends StatelessWidget {
   final CurrentWeather current;
-  const CurrentWeatherWidget(this.current, {Key? key}) : super(key: key);
+  const _CurrentWeatherWidget(this.current, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -239,6 +213,34 @@ class CurrentWeatherWidget extends StatelessWidget {
       const Divider(),
       Text('Barometro: ${current.pressure}mBar'),
     ]);
+  }
+}
+
+class _NoGPSScreen extends StatelessWidget {
+  final Function geoLocationWeather;
+  const _NoGPSScreen(this.geoLocationWeather, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          "Non è stato possibile ricevere la posizione GPS",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'IndieFlower',
+            fontSize: 40.0,
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            geoLocationWeather();
+          },
+          child: const Text('Prendi posizione GPS'),
+        ),
+      ],
+    );
   }
 }
 
