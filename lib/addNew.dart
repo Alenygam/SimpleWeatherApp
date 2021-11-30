@@ -31,9 +31,11 @@ class _AddNewCityState extends State<AddNewCity> {
           cityJson["geonameId"], cityJson["countryName"], cityJson["name"]);
       resultsNew.add(city);
     }
-    setState(() {
-      searchResults = resultsNew;
-    });
+    if (mounted) {
+      setState(() {
+        searchResults = resultsNew;
+      });
+    }
   }
 
   @override

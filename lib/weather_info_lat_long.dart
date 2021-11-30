@@ -19,9 +19,11 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
   // This is when first loading the app
   num typeOfScreen = 0;
   void setTypeOfScreen(num type) {
-    setState(() {
-      typeOfScreen = type;
-    });
+    if (mounted) {
+      setState(() {
+        typeOfScreen = type;
+      });
+    }
   }
 
   // ignore: prefer_typing_uninitialized_variables
@@ -33,9 +35,11 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
     var response = await http
         .get(Uri.https('weather.alenygam.com', 'weather/geo/$lat/$lon'));
     if (response.statusCode >= 300) return;
-    setState(() {
-      setWeathers(jsonDecode(response.body));
-    });
+    if (mounted) {
+      setState(() {
+        setWeathers(jsonDecode(response.body));
+      });
+    }
   }
 
   Future<void> geoLocationWeather() async {
