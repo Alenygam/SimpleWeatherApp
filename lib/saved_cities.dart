@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'addNew.dart';
+import 'add_new.dart';
 import 'city.dart';
 import 'weather_info.dart';
 
