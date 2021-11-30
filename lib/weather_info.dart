@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:SimpleWeatherApp/weather.dart';
+
 import 'city.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -16,12 +18,25 @@ class _WeatherInfoState extends State<WeatherInfo> {
   String get cityName => widget.city.name;
   num get cityId => widget.city.cityId;
   String get cityCountry => widget.city.country;
+
   // ignore: prefer_typing_uninitialized_variables
   var current;
   List<HourlyWeather> hourly = [];
   List<DailyWeather> daily = [];
 
+  num typeOfScreen = 0;
+  void setTypeOfScreen(num type) {
+    if (mounted) {
+      setState(() {
+        typeOfScreen = type;
+      });
+    }
+  }
+
   void getWeatherData() async {
+    setTypeOfScreen(0);
+    hourly = [];
+    daily = [];
     var response =
         await http.get(Uri.https('weather.alenygam.com', 'weather/$cityId'));
     if (response.statusCode >= 300) return;
@@ -29,6 +44,7 @@ class _WeatherInfoState extends State<WeatherInfo> {
     setState(() {
       setWeathers(jsonDecode(response.body));
     });
+    setTypeOfScreen(2);
   }
 
   void setWeathers(data) {
@@ -74,191 +90,6 @@ class _WeatherInfoState extends State<WeatherInfo> {
 
   @override
   Widget build(BuildContext context) {
-    if (current == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(cityName),
-        ),
-      );
-    }
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(cityName),
-      ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            CurrentWeatherWidget(current),
-            Column(children: [
-              for (var forecast in hourly) HourlyWeatherWidget(forecast),
-            ]),
-          ]),
-          const Divider(),
-          SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var forecast in daily) DailyWeatherWidget(forecast)
-                ],
-              )),
-        ]),
-      ),
-    );
+    return WeatherPage(getWeatherData, typeOfScreen, current, hourly, daily);
   }
-}
-
-class DailyWeatherWidget extends StatelessWidget {
-  final DailyWeather forecast;
-  const DailyWeatherWidget(this.forecast, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Image.asset('assets/${forecast.icon}.png'),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              const Icon(Icons.calendar_today_outlined, size: 19),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Text(forecast.date,
-                    style: const TextStyle(
-                      fontSize: 17.5,
-                    )),
-              ),
-            ],
-          ),
-        ),
-        Row(
-          children: [
-            const Icon(Icons.device_thermostat, color: Colors.red),
-            Text('${forecast.hightemp}°C'),
-          ],
-        ),
-        Row(
-          children: [
-            const Icon(Icons.device_thermostat, color: Colors.blueGrey),
-            Text('${forecast.lowtemp}°C'),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class HourlyWeatherWidget extends StatelessWidget {
-  final HourlyWeather forecast;
-  const HourlyWeatherWidget(this.forecast, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [
-      Column(children: [
-        Image.asset('assets/${forecast.icon}.png'),
-      ]),
-      Column(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Row(
-                  children: [
-                    const Icon(Icons.device_thermostat, color: Colors.red),
-                    Text('${forecast.temp}°C'),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Row(
-                  children: [
-                    const Icon(Icons.access_alarm),
-                    Text(forecast.time),
-                  ],
-                ),
-              ),
-            ],
-          )
-        ],
-      )
-    ]);
-  }
-}
-
-class CurrentWeatherWidget extends StatelessWidget {
-  final CurrentWeather current;
-  const CurrentWeatherWidget(this.current, {Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [
-      const Text(
-        'Condizione Attuale',
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
-      Image.asset('assets/${current.icon}.png'),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                const Icon(Icons.device_thermostat,
-                    size: 40.0, color: Colors.red),
-                Text(
-                  '${current.temp}°C',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 18.5),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                const Icon(Icons.water, size: 40.0, color: Colors.lightBlue),
-                Text(
-                  ' ${current.humidity}%',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 18.5),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      const Divider(),
-      Text('Barometro: ${current.pressure}mBar'),
-    ]);
-  }
-}
-
-class CurrentWeather {
-  final String main, description, icon;
-  final num id, temp, pressure, humidity;
-  CurrentWeather(this.id, this.main, this.description, this.icon, this.temp,
-      this.pressure, this.humidity);
-}
-
-class HourlyWeather {
-  final String time, main, description, icon;
-  final num temp, id;
-  HourlyWeather(
-      this.time, this.temp, this.id, this.main, this.description, this.icon);
-}
-
-class DailyWeather {
-  final String date, main, description, icon;
-  final num hightemp, lowtemp, id;
-  DailyWeather(this.date, this.hightemp, this.lowtemp, this.id, this.main,
-      this.description, this.icon);
 }
