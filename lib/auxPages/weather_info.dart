@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:SimpleWeatherApp/weather.dart';
-
-import 'city.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+import 'package:SimpleWeatherApp/common/city.dart';
+import 'package:SimpleWeatherApp/common/weather.dart';
 
 class WeatherInfo extends StatefulWidget {
   final City city;

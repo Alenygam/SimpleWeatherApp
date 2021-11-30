@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'weather_info_lat_long.dart';
-import 'saved_cities.dart';
-import 'settings.dart';
+
+import 'package:SimpleWeatherApp/mainPages/saved_cities.dart';
+import 'package:SimpleWeatherApp/mainPages/settings.dart';
+import 'package:SimpleWeatherApp/mainPages/weather_info_lat_long.dart';
 
 class BottomNav extends StatefulWidget {
   const BottomNav({Key? key}) : super(key: key);
