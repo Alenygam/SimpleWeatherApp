@@ -25,6 +25,7 @@ class _WeatherInfoState extends State<WeatherInfo> {
     var response =
         await http.get(Uri.https('weather.alenygam.com', 'weather/$cityId'));
     if (response.statusCode >= 300) return;
+    if (!mounted) return;
     setState(() {
       setWeathers(jsonDecode(response.body));
     });

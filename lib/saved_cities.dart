@@ -31,9 +31,11 @@ class _SavedCitiesState extends State<SavedCities> {
     stringCities.add('${city.name};${city.cityId};${city.country}');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('cities', stringCities);
-    setState(() {
-      cities.add(city);
-    });
+    if (mounted) {
+      setState(() {
+        cities.add(city);
+      });
+    }
   }
 
   void removeCity(City city) async {
@@ -45,14 +47,17 @@ class _SavedCitiesState extends State<SavedCities> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('cities', stringCities);
-    setState(() {
-      cities.remove(city);
-    });
+    if (mounted) {
+      setState(() {
+        cities.remove(city);
+      });
+    }
   }
 
   void _getStoredCities() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var savedCities = prefs.getStringList('cities');
+    if (!mounted) return;
     setState(() {
       if (savedCities != null) {
         cities = [];
