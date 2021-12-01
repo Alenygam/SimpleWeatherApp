@@ -66,7 +66,10 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
       return;
     }
 
-    Position _locationData = await Geolocator.getCurrentPosition();
+    Position _locationData = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.low,
+      forceAndroidLocationManager: true
+    );
 
     double lat = _locationData.latitude;
     double lon = _locationData.longitude;

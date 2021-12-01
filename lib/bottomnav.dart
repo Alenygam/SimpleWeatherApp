@@ -62,8 +62,8 @@ class _BottomNavState extends State<BottomNav> with TickerProviderStateMixin {
           indicator: const UnderlineTabIndicator(
             borderSide: BorderSide(width: 4, color: Colors.blue),
           ),
-          labelColor: Colors.black,
-          unselectedLabelColor: Colors.grey,
+          labelColor: Theme.of(context).colorScheme.secondary,
+          unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
           controller: tabController,
           tabs: myTabs,
         ),

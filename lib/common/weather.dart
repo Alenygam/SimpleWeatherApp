@@ -110,13 +110,13 @@ class _DailyWeatherWidget extends StatelessWidget {
         ),
         Row(
           children: [
-            const Icon(Icons.device_thermostat, color: Colors.red),
+            const Icon(Icons.device_thermostat, color: Colors.redAccent),
             Text('${forecast.hightemp}°C'),
           ],
         ),
         Row(
           children: [
-            const Icon(Icons.device_thermostat, color: Colors.blueGrey),
+            Icon(Icons.device_thermostat, color: Colors.indigo[300]),
             Text('${forecast.lowtemp}°C'),
           ],
         ),
@@ -144,7 +144,7 @@ class _HourlyWeatherWidget extends StatelessWidget {
                 padding: const EdgeInsets.all(4.0),
                 child: Row(
                   children: [
-                    const Icon(Icons.device_thermostat, color: Colors.red),
+                    const Icon(Icons.device_thermostat, color: Colors.redAccent),
                     Text('${forecast.temp}°C'),
                   ],
                 ),
@@ -186,7 +186,7 @@ class _CurrentWeatherWidget extends StatelessWidget {
             child: Row(
               children: [
                 const Icon(Icons.device_thermostat,
-                    size: 40.0, color: Colors.red),
+                    size: 40.0, color: Colors.redAccent),
                 Text(
                   '${current.temp}°C',
                   style: const TextStyle(
