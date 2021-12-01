@@ -68,7 +68,6 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
 
     Position _locationData = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.low,
-      forceAndroidLocationManager: true
     );
 
     double lat = _locationData.latitude;
@@ -124,6 +123,6 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
 
   @override
   Widget build(BuildContext context) {
-    return WeatherPage(geoLocationWeather, typeOfScreen, current, hourly, daily);
+    return WeatherPage(geoLocationWeather, typeOfScreen, current, hourly, daily, "Posizione Corrente");
   }
 }

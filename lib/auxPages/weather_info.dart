@@ -90,6 +90,6 @@ class _WeatherInfoState extends State<WeatherInfo> {
 
   @override
   Widget build(BuildContext context) {
-    return WeatherPage(getWeatherData, typeOfScreen, current, hourly, daily);
+    return WeatherPage(getWeatherData, typeOfScreen, current, hourly, daily, cityName);
   }
 }

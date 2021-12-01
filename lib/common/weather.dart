@@ -7,7 +7,10 @@ class WeatherPage extends StatelessWidget {
   final CurrentWeather? current;
   final List<HourlyWeather>? hourly;
   final List<DailyWeather>? daily;
-  const WeatherPage(this.refresh, this.typeOfScreen, this.current, this.hourly, this.daily, {Key? key})
+  final String title;
+  const WeatherPage(this.refresh, this.typeOfScreen, this.current, this.hourly,
+      this.daily, this.title,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -29,7 +32,7 @@ class WeatherPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text("Posizione Corrente"),
+        title: Text(title),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -144,7 +147,8 @@ class _HourlyWeatherWidget extends StatelessWidget {
                 padding: const EdgeInsets.all(4.0),
                 child: Row(
                   children: [
-                    const Icon(Icons.device_thermostat, color: Colors.redAccent),
+                    const Icon(Icons.device_thermostat,
+                        color: Colors.redAccent),
                     Text('${forecast.temp}°C'),
                   ],
                 ),
