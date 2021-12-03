@@ -1,8 +1,11 @@
+import 'package:SimpleWeatherApp/common/languages.dart';
+import 'package:SimpleWeatherApp/common/settings_notifier.dart';
 import 'package:flutter/material.dart';
 
 import 'package:SimpleWeatherApp/mainPages/saved_cities.dart';
 import 'package:SimpleWeatherApp/mainPages/settings.dart';
 import 'package:SimpleWeatherApp/mainPages/weather_info_lat_long.dart';
+import 'package:provider/provider.dart';
 
 class BottomNav extends StatefulWidget {
   const BottomNav({Key? key}) : super(key: key);
@@ -26,32 +29,33 @@ class _BottomNavState extends State<BottomNav> with TickerProviderStateMixin {
     Settings(),
   ];
 
-  List<Tab> myTabs = const [
-    Tab(
-      icon: Icon(Icons.map_outlined),
-      child: Text(
-        'Posizione Corrente',
-        textAlign: TextAlign.center,
-      ),
-    ),
-    Tab(
-      icon: Icon(Icons.star),
-      child: Text(
-        'Città Salvate',
-        textAlign: TextAlign.center,
-      ),
-    ),
-    Tab(
-      icon: Icon(Icons.settings),
-      child: Text(
-        'Impostazioni',
-        textAlign: TextAlign.center,
-      ),
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    String language = Provider.of<SettingsModel>(context).language;
+
+    List<Tab> myTabs = [
+      Tab(
+        icon: const Icon(Icons.map_outlined),
+        child: Text(
+          languages[language]!.currentPosition,
+          textAlign: TextAlign.center,
+        ),
+      ),
+      Tab(
+        icon: const Icon(Icons.star),
+        child: Text(
+          languages[language]!.savedCities,
+          textAlign: TextAlign.center,
+        ),
+      ),
+      Tab(
+        icon: const Icon(Icons.settings),
+        child: Text(
+          languages[language]!.settings,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    ];
     return Scaffold(
       body: TabBarView(
         controller: tabController,

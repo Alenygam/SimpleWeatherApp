@@ -1,13 +1,16 @@
 import 'package:flutter/cupertino.dart';
 
 class SettingsModel extends ChangeNotifier {
-  var settings = {
-    "banana": 1
-  };
+  String language = "en";
+  String units = "metric";
 
-  changeSetting() {
-    settings["banana"] = settings["banana"]! + 1;
+  setLanguage(String newLanguage) {
+    language = newLanguage;
+    notifyListeners();
+  }
 
+  setUnits(String newUnits) {
+    units = newUnits;
     notifyListeners();
   }
 }

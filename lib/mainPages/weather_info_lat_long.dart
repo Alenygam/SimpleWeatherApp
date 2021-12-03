@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+import 'package:SimpleWeatherApp/common/languages.dart';
+import 'package:SimpleWeatherApp/common/settings_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:SimpleWeatherApp/common/weather.dart';
+import 'package:provider/provider.dart';
 
 class WeatherInfoGeo extends StatefulWidget {
   const WeatherInfoGeo({Key? key}) : super(key: key);
@@ -33,8 +36,9 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
   List<DailyWeather> daily = [];
 
   Future<void> getWeatherData(double lat, double lon) async {
+    String units = Provider.of<SettingsModel>(context, listen: false).units;
     var response = await http
-        .get(Uri.https('weather.alenygam.com', 'weather/geo/$lat/$lon'));
+        .get(Uri.https('weather.alenygam.com', 'weather/geo/$lat/$lon/$units'));
     if (response.statusCode >= 300) return;
     if (mounted) {
       setState(() {
@@ -75,7 +79,8 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
     setTypeOfScreen(0);
 
     await getWeatherData(lat, lon);
-    setTypeOfScreen(2);
+    if (hourly.isNotEmpty && daily.isNotEmpty && current != null)
+      setTypeOfScreen(2);
   }
 
   @override
@@ -123,6 +128,8 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
 
   @override
   Widget build(BuildContext context) {
-    return WeatherPage(geoLocationWeather, typeOfScreen, current, hourly, daily, "Posizione Corrente");
+    String language = Provider.of<SettingsModel>(context).language;
+    return WeatherPage(geoLocationWeather, typeOfScreen, current, hourly, daily,
+        languages[language]!.currentPosition);
   }
 }

@@ -1,5 +1,9 @@
+import 'package:SimpleWeatherApp/common/languages.dart';
+import 'package:SimpleWeatherApp/common/settings_notifier.dart';
+import 'package:SimpleWeatherApp/common/units.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
 
 class WeatherPage extends StatelessWidget {
   final Function refresh;
@@ -93,6 +97,9 @@ class _DailyWeatherWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String units = Provider.of<SettingsModel>(context).units;
+    String unitName = unitNames[units]!;
+
     return Column(
       children: [
         Image.asset('assets/${forecast.icon}.png'),
@@ -114,13 +121,13 @@ class _DailyWeatherWidget extends StatelessWidget {
         Row(
           children: [
             const Icon(Icons.device_thermostat, color: Colors.redAccent),
-            Text('${forecast.hightemp}°C'),
+            Text('${forecast.hightemp}$unitName'),
           ],
         ),
         Row(
           children: [
             Icon(Icons.device_thermostat, color: Colors.indigo[300]),
-            Text('${forecast.lowtemp}°C'),
+            Text('${forecast.lowtemp}$unitName'),
           ],
         ),
       ],
@@ -134,6 +141,9 @@ class _HourlyWeatherWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String units = Provider.of<SettingsModel>(context).units;
+    String unitName = unitNames[units]!;
+
     return Row(children: [
       Column(children: [
         Image.asset('assets/${forecast.icon}.png'),
@@ -149,7 +159,7 @@ class _HourlyWeatherWidget extends StatelessWidget {
                   children: [
                     const Icon(Icons.device_thermostat,
                         color: Colors.redAccent),
-                    Text('${forecast.temp}°C'),
+                    Text('${forecast.temp}$unitName'),
                   ],
                 ),
               ),
@@ -176,10 +186,14 @@ class _CurrentWeatherWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String language = Provider.of<SettingsModel>(context).language;
+    String units = Provider.of<SettingsModel>(context).units;
+    String unitName = unitNames[units]!;
+
     return Column(children: [
-      const Text(
-        'Condizione Attuale',
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      Text(
+        languages[language]!.currentCondition,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
       Image.asset('assets/${current.icon}.png'),
       Row(
@@ -192,7 +206,7 @@ class _CurrentWeatherWidget extends StatelessWidget {
                 const Icon(Icons.device_thermostat,
                     size: 40.0, color: Colors.redAccent),
                 Text(
-                  '${current.temp}°C',
+                  '${current.temp}$unitName',
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 18.5),
                 ),
@@ -215,7 +229,7 @@ class _CurrentWeatherWidget extends StatelessWidget {
         ],
       ),
       const Divider(),
-      Text('Barometro: ${current.pressure}mBar'),
+      Text('${languages[language]!.barometer}: ${current.pressure}mBar'),
     ]);
   }
 }

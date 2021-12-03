@@ -1,4 +1,7 @@
+import 'package:SimpleWeatherApp/common/languages.dart';
+import 'package:SimpleWeatherApp/common/settings_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:SimpleWeatherApp/auxPages/add_new.dart';
@@ -76,9 +79,11 @@ class _SavedCitiesState extends State<SavedCities> {
 
   @override
   Widget build(BuildContext context) {
+    String language = Provider.of<SettingsModel>(context).language;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Città Salvate"),
+        title: Text(languages[language]!.savedCities),
         centerTitle: true,
         actions: [
           IconButton(

@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:SimpleWeatherApp/common/settings_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:SimpleWeatherApp/common/city.dart';
 import 'package:SimpleWeatherApp/common/weather.dart';
+import 'package:provider/provider.dart';
 
 class WeatherInfo extends StatefulWidget {
   final City city;
@@ -37,8 +39,9 @@ class _WeatherInfoState extends State<WeatherInfo> {
     setTypeOfScreen(0);
     hourly = [];
     daily = [];
+    String units = Provider.of<SettingsModel>(context, listen: false).units;
     var response =
-        await http.get(Uri.https('weather.alenygam.com', 'weather/$cityId'));
+        await http.get(Uri.https('weather.alenygam.com', 'weather/$cityId/$units'));
     if (response.statusCode >= 300) return;
     if (!mounted) return;
     setState(() {

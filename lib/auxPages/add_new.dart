@@ -1,9 +1,12 @@
 import 'dart:convert';
 
+import 'package:SimpleWeatherApp/common/languages.dart';
+import 'package:SimpleWeatherApp/common/settings_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:SimpleWeatherApp/common/city.dart';
+import 'package:provider/provider.dart';
 
 class AddNewCity extends StatefulWidget {
   final Function addCity;
@@ -14,8 +17,6 @@ class AddNewCity extends StatefulWidget {
 }
 
 class _AddNewCityState extends State<AddNewCity> {
-  final String title = "Aggiungi una nuova città";
-
   List<City> searchResults = [];
   getResults(String input) async {
     var response =
@@ -40,9 +41,11 @@ class _AddNewCityState extends State<AddNewCity> {
 
   @override
   Widget build(BuildContext context) {
+    String language = Provider.of<SettingsModel>(context).language;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(languages[language]!.addNew),
       ),
       body: Column(
         children: [
@@ -55,7 +58,6 @@ class _AddNewCityState extends State<AddNewCity> {
             },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              hintText: 'Cerca la tua città',
             ),
           ),
           const Divider(),
