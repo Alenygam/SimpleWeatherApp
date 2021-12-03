@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'bottomnav.dart';
 import 'package:SimpleWeatherApp/common/themedata.dart';
 import 'package:SimpleWeatherApp/common/settings_notifier.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(
@@ -14,8 +15,29 @@ void main() {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  void initProvider() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var language = prefs.getString("language");
+    var units = prefs.getString("units");
+
+    SettingsModel provider = Provider.of<SettingsModel>(context, listen: false);
+    if (language != null) provider.setLanguage(language);
+    if (units != null) provider.setLanguage(units);
+  }
+
+  @override
+  void initState() {
+    initProvider();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
