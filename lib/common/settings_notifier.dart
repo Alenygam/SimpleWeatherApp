@@ -5,17 +5,25 @@ class SettingsModel extends ChangeNotifier {
   String language = "en";
   String units = "metric";
 
-  setLanguage(String newLanguage) async {
+  /// [setPref] is true by default
+  setLanguage(String newLanguage, [bool? setPref]) async {
+    setPref ??= true;
     language = newLanguage;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString("language", language);
+    if (setPref) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString("language", language);
+    }
     notifyListeners();
   }
 
-  setUnits(String newUnits) async {
+  /// [setPref] is true by default
+  setUnits(String newUnits, [bool? setPref]) async {
+    setPref ??= true;
     units = newUnits;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString("units", units);
+    if (setPref) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString("units", units);
+    }
     notifyListeners();
   }
 }

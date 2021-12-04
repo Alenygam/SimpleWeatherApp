@@ -29,8 +29,8 @@ class _MyAppState extends State<MyApp> {
     var units = prefs.getString("units");
 
     SettingsModel provider = Provider.of<SettingsModel>(context, listen: false);
-    if (language != null) provider.setLanguage(language);
-    if (units != null) provider.setLanguage(units);
+    if (language != null) provider.setLanguage(language, false);
+    if (units != null) provider.setUnits(units, false);
   }
 
   @override
