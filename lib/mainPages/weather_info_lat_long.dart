@@ -71,7 +71,7 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
     }
 
     Position _locationData = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.low,
+      desiredAccuracy: LocationAccuracy.medium,
     );
 
     double lat = _locationData.latitude;
