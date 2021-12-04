@@ -18,9 +18,9 @@ class AddNewCity extends StatefulWidget {
 
 class _AddNewCityState extends State<AddNewCity> {
   List<City> searchResults = [];
-  getResults(String input) async {
-    var response =
-        await http.get(Uri.https('weather.alenygam.com', 'search/geo/$input'));
+  getResults(String input, String lang) async {
+    var response = await http
+        .get(Uri.https('weather.alenygam.com', 'search/geo/$input/$lang'));
     if (response.statusCode >= 300) {
       return;
     }
@@ -50,10 +50,12 @@ class _AddNewCityState extends State<AddNewCity> {
       body: Column(
         children: [
           TextField(
-            onSubmitted: getResults,
+            onSubmitted: (input) {
+              getResults(input, language);
+            },
             onChanged: (String input) {
               if (input.length % 4 == 0) {
-                getResults(input);
+                getResults(input, language);
               }
             },
             decoration: const InputDecoration(

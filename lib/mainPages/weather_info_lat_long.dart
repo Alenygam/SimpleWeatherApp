@@ -36,7 +36,7 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
   List<DailyWeather> daily = [];
 
   Future<void> getWeatherData(double lat, double lon) async {
-    String units = Provider.of<SettingsModel>(context, listen: false).units;
+    String units = mounted ? Provider.of<SettingsModel>(context, listen: false).units : "metric";
     var response = await http
         .get(Uri.https('weather.alenygam.com', 'weather/geo/$lat/$lon/$units'));
     if (response.statusCode >= 300) return;
