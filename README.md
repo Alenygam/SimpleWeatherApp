@@ -12,10 +12,6 @@ Simple Weather app (Like the name suggests).
 - Multiple languages;
 - Multiple units of measure (Degrees Celsius and Fahrenheit).
 
-### TODO
-
-- No Google Play Services for Geolocation
-
 ## Italiano
 
 Semplicissima applicazione per il meteo.
@@ -27,7 +23,3 @@ Semplicissima applicazione per il meteo.
 - Tema chiaro e scuro: **SEGUE LE IMPOSTAZIONI DI SISTEMA**
 - Multiple lingue;
 - Multiple unità di misura.
-
-### TODO
-
-- No Google Play Services per geolocalizzazione
