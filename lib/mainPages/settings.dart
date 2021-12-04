@@ -50,7 +50,6 @@ class _SettingsState extends State<Settings> {
                 style: const TextStyle(fontSize: 18.0),
               ),
               onChanged: (val) {
-                print(val);
                 settingsProvider.setLanguage(val);
               },
             ),
@@ -65,7 +64,6 @@ class _SettingsState extends State<Settings> {
                 style: const TextStyle(fontSize: 18.0),
               ),
               onChanged: (val) {
-                print(val);
                 settingsProvider.setUnits(val);
               },
             ),
