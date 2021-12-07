@@ -33,10 +33,12 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
   // ignore: prefer_typing_uninitialized_variables
   var current;
   List<HourlyWeather> hourly = [];
-  List<DailyWeather> daily = [];
+  Map<String, List<HourlyWeather>> daily = {};
 
   Future<void> getWeatherData(double lat, double lon) async {
-    String units = mounted ? Provider.of<SettingsModel>(context, listen: false).units : "metric";
+    String units = mounted
+        ? Provider.of<SettingsModel>(context, listen: false).units
+        : "metric";
     var response = await http
         .get(Uri.https('weather.alenygam.com', 'weather/geo/$lat/$lon/$units'));
     if (response.statusCode >= 300) return;
@@ -113,16 +115,18 @@ class _WeatherInfoGeoState extends State<WeatherInfoGeo> {
     }
 
     var dailyJson = data["daily"];
-    daily = [];
-    for (var forecast in dailyJson) {
-      daily.add(DailyWeather(
-          forecast["date"],
-          forecast["hightemp"],
-          forecast["lowtemp"],
-          forecast["id"],
-          forecast["main"],
-          forecast["description"],
-          forecast["icon"]));
+    daily = {};
+    for (var date in dailyJson.keys) {
+      daily[date] = [];
+      for (var hour in dailyJson[date]) {
+        daily[date]?.add(HourlyWeather(
+            hour["time"],
+            hour["temp"],
+            hour["id"],
+            hour["main"],
+            hour["description"],
+            hour["icon"]));
+      }
     }
   }
 

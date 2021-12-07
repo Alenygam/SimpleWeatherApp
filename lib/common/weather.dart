@@ -10,7 +10,7 @@ class WeatherPage extends StatelessWidget {
   final num typeOfScreen;
   final CurrentWeather? current;
   final List<HourlyWeather>? hourly;
-  final List<DailyWeather>? daily;
+  final Map<String, List<HourlyWeather>>? daily;
   final String title;
   const WeatherPage(this.refresh, this.typeOfScreen, this.current, this.hourly,
       this.daily, this.title,
@@ -62,7 +62,7 @@ class _Loading extends StatelessWidget {
 class _Weather extends StatelessWidget {
   final CurrentWeather current;
   final List<HourlyWeather> hourly;
-  final List<DailyWeather> daily;
+  final Map<String, List<HourlyWeather>> daily;
   const _Weather(this.current, this.hourly, this.daily, {Key? key})
       : super(key: key);
 
@@ -70,30 +70,31 @@ class _Weather extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
-      child: Column(children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-          _CurrentWeatherWidget(current),
-          Column(children: [
-            for (var forecast in hourly) _HourlyWeatherWidget(forecast),
-          ]),
-        ]),
-        const Divider(),
-        SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                for (var forecast in daily) _DailyWeatherWidget(forecast)
-              ],
-            )),
-      ]),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _CurrentWeatherWidget(current),
+              Column(
+                children: [
+                  for (var forecast in hourly) _HourlyWeatherWidget(forecast),
+                ],
+              ),
+            ],
+          ),
+          for (var key in daily.keys) _DailyWeatherWidget(daily[key]!, key)
+        ],
+      ),
     );
   }
 }
 
 class _DailyWeatherWidget extends StatelessWidget {
-  final DailyWeather forecast;
-  const _DailyWeatherWidget(this.forecast, {Key? key}) : super(key: key);
+  final List<HourlyWeather> forecast;
+  final String date;
+  const _DailyWeatherWidget(this.forecast, this.date, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -102,33 +103,58 @@ class _DailyWeatherWidget extends StatelessWidget {
 
     return Column(
       children: [
-        Image.asset('assets/${forecast.icon}.png'),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              const Icon(Icons.calendar_today_outlined, size: 19),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Text(forecast.date,
-                    style: const TextStyle(
-                      fontSize: 17.5,
-                    )),
+        const Divider(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.calendar_today_outlined),
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                date,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 17.5,
+                ),
               ),
+            ),
+          ],
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              for (HourlyWeather hour in forecast)
+                Column(
+                  children: [
+                    Image.asset('assets/${hour.icon}.png'),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.alarm, size: 19),
+                          Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Text(hour.time,
+                                style: const TextStyle(
+                                  fontSize: 17.5,
+                                )),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Icons.device_thermostat,
+                            color: Colors.redAccent),
+                        Text('${hour.temp}$unitName'),
+                      ],
+                    ),
+                  ],
+                )
             ],
           ),
-        ),
-        Row(
-          children: [
-            const Icon(Icons.device_thermostat, color: Colors.redAccent),
-            Text('${forecast.hightemp}$unitName'),
-          ],
-        ),
-        Row(
-          children: [
-            Icon(Icons.device_thermostat, color: Colors.indigo[300]),
-            Text('${forecast.lowtemp}$unitName'),
-          ],
         ),
       ],
     );
@@ -274,11 +300,4 @@ class HourlyWeather {
   final num temp, id;
   HourlyWeather(
       this.time, this.temp, this.id, this.main, this.description, this.icon);
-}
-
-class DailyWeather {
-  final String date, main, description, icon;
-  final num hightemp, lowtemp, id;
-  DailyWeather(this.date, this.hightemp, this.lowtemp, this.id, this.main,
-      this.description, this.icon);
 }
