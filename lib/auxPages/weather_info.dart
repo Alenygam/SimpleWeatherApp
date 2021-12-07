@@ -24,7 +24,7 @@ class _WeatherInfoState extends State<WeatherInfo> {
   // ignore: prefer_typing_uninitialized_variables
   var current;
   List<HourlyWeather> hourly = [];
-  List<DailyWeather> daily = [];
+  Map<String, List<HourlyWeather>> daily = {};
 
   num typeOfScreen = 0;
   void setTypeOfScreen(num type) {
@@ -38,10 +38,10 @@ class _WeatherInfoState extends State<WeatherInfo> {
   void getWeatherData() async {
     setTypeOfScreen(0);
     hourly = [];
-    daily = [];
+    daily = {};
     String units = Provider.of<SettingsModel>(context, listen: false).units;
-    var response =
-        await http.get(Uri.https('weather.alenygam.com', 'weather/$cityId/$units'));
+    var response = await http
+        .get(Uri.https('weather.alenygam.com', 'weather/$cityId/$units'));
     if (response.statusCode >= 300) return;
     if (!mounted) return;
     setState(() {
@@ -73,15 +73,17 @@ class _WeatherInfoState extends State<WeatherInfo> {
     }
 
     var dailyJson = data["daily"];
-    for (var forecast in dailyJson) {
-      daily.add(DailyWeather(
-          forecast["date"],
-          forecast["hightemp"],
-          forecast["lowtemp"],
-          forecast["id"],
-          forecast["main"],
-          forecast["description"],
-          forecast["icon"]));
+    for (var date in dailyJson.keys) {
+      daily[date] = [];
+      for (var hour in dailyJson[date]) {
+        daily[date]?.add(HourlyWeather(
+            hour["time"],
+            hour["temp"],
+            hour["id"],
+            hour["main"],
+            hour["description"],
+            hour["icon"]));
+      }
     }
   }
 
@@ -93,6 +95,7 @@ class _WeatherInfoState extends State<WeatherInfo> {
 
   @override
   Widget build(BuildContext context) {
-    return WeatherPage(getWeatherData, typeOfScreen, current, hourly, daily, cityName);
+    return WeatherPage(
+        getWeatherData, typeOfScreen, current, hourly, daily, cityName);
   }
 }
