@@ -51,3 +51,15 @@ const _Language _english = _Language(
   unitOfMeasure: "Unit of Measure",
   addNew: "Add a city",
 );
+
+const _Language _romanian = _Language(
+  fullName: "Română",
+  barometer: "Barometru",
+  savedCities: "Orașe Salvate",
+  currentPosition: "Poziție Curentă",
+  settings: "Setări",
+  language: "Limbă",
+  currentCondition: "Condiție Curentă",
+  unitOfMeasure: "Unitate de măsură",
+  addNew: "Adaugă un oraș",
+);
