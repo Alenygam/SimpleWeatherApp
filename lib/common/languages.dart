@@ -26,6 +26,7 @@ class _Language {
 const Map<String, _Language> languages = {
   "it": _italian,
   "en": _english,
+  "ro": _romanian, 
 };
 
 const _Language _italian = _Language(
