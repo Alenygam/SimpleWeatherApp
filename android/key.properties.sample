@@ -1,0 +1,4 @@
+storePassword=
+keyPassword=
+keyAlias=
+storeFile=/home/user/.keys/key.jks
